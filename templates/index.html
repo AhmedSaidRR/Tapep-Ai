@@ -3,9 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MediBlaze AI — مساعدك الطبي الذكي</title>
-  <meta name="description" content="MediBlaze AI — مساعد طبي ذكي يجيب على أسئلتك الصحية بدقة ويحلل صورك الطبية لحظياً." />
-  <link rel="icon" type="image/png" href="/static/logo.png" />
+  <title>طبيب AI — مساعدك الطبي الذكي</title>
+  <meta name="description" content="طبيب AI — مساعد طبي ذكي يجيب على أسئلتك الصحية بدقة ويحلل صورك الطبية لحظياً." />
+  <link rel="icon" type="image/png" href="/static/icon-192x192.png" />
+
+  <!-- PWA Manifest & Meta -->
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="theme-color" content="#3b82f6" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Tabeeb AI" />
+  <link rel="apple-touch-icon" href="/static/icon-152x152.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/icon-192x192.png" />
 
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,7 +31,7 @@
   <!-- jsPDF for Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <link rel="stylesheet" href="/static/styles.css" />
+  <link rel="stylesheet" href="/static/styles.css?v=2" />
 </head>
 <body>
 
@@ -326,8 +336,8 @@
     <i class="fas fa-bars"></i>
   </button>
   <a href="#" class="brand">
-    <img src="/static/logo.png" alt="MediBlaze AI" class="brand-logo" onerror="this.style.display='none'" />
-    <span class="brand-name">MediBlaze AI</span>
+    <img src="/static/logo.png" alt="Tabeeb AI" class="brand-logo" onerror="this.style.display='none'" />
+    <span class="brand-name">طبيب AI</span>
     <span class="brand-sub">v3.0</span>
   </a>
   <div class="nav-controls">
@@ -353,8 +363,65 @@
     <a href="/docs" target="_blank" class="nav-icon-btn" title="API Documentation" aria-label="API docs">
       <i class="fas fa-book-open"></i>
     </a>
+    <!-- Install PWA Button -->
+    <button id="installPwaBtn" class="nav-install-btn" title="ثبّت التطبيق على هاتفك" aria-label="Install app" style="display:none">
+      <i class="fas fa-download"></i>
+      <span>تثبيت</span>
+    </button>
   </div>
 </nav>
+
+<!-- ── PWA Install Banner ───────────────────────────────────────────────────── -->
+<div id="installBanner" style="display:none">
+  <div class="install-banner">
+    <div class="install-banner-icon">📲</div>
+    <div class="install-banner-text">
+      <strong>ثبّت طبيب AI على هاتفك!</strong>
+      <span>استخدمه كتطبيق بدون متصفح</span>
+    </div>
+    <button id="installBannerBtn" class="install-banner-cta">تثبيت الآن</button>
+    <button id="installBannerClose" class="install-banner-x" aria-label="Close"><i class="fas fa-times"></i></button>
+  </div>
+</div>
+
+<!-- ── iOS Install Instructions Modal ──────────────────────────────────────── -->
+<div class="modal-overlay" id="iosInstallModal" role="dialog" aria-modal="true">
+  <div class="modal-box" style="max-width:340px;text-align:center">
+    <div class="modal-header">
+      <span class="modal-title">📲 تثبيت على iPhone</span>
+      <button class="modal-close" id="closeIosModal" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:1.5rem">
+      <div style="font-size:2.5rem;margin-bottom:1rem">🍎</div>
+      <p style="margin-bottom:1.2rem;line-height:1.7;color:var(--mb-text)">لتثبيت التطبيق على iPhone اتبع الخطوات:</p>
+      <div class="ios-step"><span class="ios-step-num">1</span> اضغط على زر <strong>المشاركة</strong> <span style="font-size:1.2rem">⬆️</span> في أسفل Safari</div>
+      <div class="ios-step"><span class="ios-step-num">2</span> اسكرول للأسفل واختر <strong>"Add to Home Screen"</strong></div>
+      <div class="ios-step"><span class="ios-step-num">3</span> اضغط <strong>"Add"</strong> في أعلى اليمين ✅</div>
+      <p style="margin-top:1rem;font-size:0.8rem;color:var(--mb-muted)">⚠️ لازم تفتح الموقع من <strong>Safari</strong> مش Chrome</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Android Install Instructions Modal ──────────────────────────────────── -->
+<div class="modal-overlay" id="androidInstallModal" role="dialog" aria-modal="true">
+  <div class="modal-box" style="max-width:360px;text-align:center">
+    <div class="modal-header">
+      <span class="modal-title">📲 تثبيت على Android</span>
+      <button class="modal-close" id="closeAndroidModal" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:1.5rem">
+      <div style="font-size:2.5rem;margin-bottom:1rem">🤖</div>
+      <p style="margin-bottom:1.4rem;line-height:1.8;color:var(--mb-text);font-size:0.95rem">اتبع الخطوات دي في Chrome:</p>
+      <div class="ios-step"><span class="ios-step-num">1</span> اضغط على <strong>⋮</strong> النقط الثلاث في أعلى يمين Chrome</div>
+      <div class="ios-step"><span class="ios-step-num">2</span> اختر <strong style="color:var(--mb-primary)">“Add to Home Screen”</strong> أو “Install App”</div>
+      <div class="ios-step"><span class="ios-step-num">3</span> اضغط <strong>“Add”</strong> أو <strong>“Install”</strong> ✅</div>
+      <div style="margin-top:1.2rem;padding:0.9rem;background:var(--mb-surface);border-radius:12px;font-size:0.82rem;color:var(--mb-muted);line-height:1.6">
+        ⚠️ لو مش لاقي الخيار ده ، افتح الموقع مرتين من Chrome ثم تفتح القائمة
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- ════════════════════════════════════════════════════════════════════════
      MAIN BODY
@@ -364,7 +431,7 @@
   <!-- ── SIDEBAR ─────────────────────────────────────────────────────────── -->
   <aside class="sidebar" id="sidebar" aria-label="Sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-title">🏥 MediBlaze</span>
+      <span class="sidebar-title">🏥 طبيب AI</span>
       <button class="sidebar-new-btn" id="newChatBtn" aria-label="New conversation">
         <i class="fas fa-plus"></i> New Chat
       </button>
@@ -403,9 +470,9 @@
 
     <!-- Footer actions -->
     <div class="sidebar-footer">
-      <div class="model-badge">
+      <div class="model-badge" title="4-tier fallback: Gemini 2.0 Flash → Gemini 2.5 Flash → Groq Llama 3.3 70B → Groq Llama 3.1 8B">
         <span class="model-dot"></span>
-        <span id="modelLabel">Llama 3.3 70B + Gemini 2.5</span>
+        <span id="modelLabel">Gemini 2.0 → 2.5 → Groq 70B ✦ Auto-Fallback</span>
       </div>
       <button class="sidebar-action-btn export-btn" id="exportPdfBtn">
         <i class="fas fa-file-pdf"></i> Export PDF
@@ -425,12 +492,12 @@
         <!-- Welcome -->
         <div class="message bot-message" id="welcomeMsg">
           <div class="message-avatar">
-            <img src="/static/doctor-avatar.png" alt="MediBlaze AI"
+            <img src="/static/doctor-avatar.png" alt="طبيب AI"
                  onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
           </div>
           <div class="message-bubble">
             <div class="message-content">
-              <h2>🏥 Welcome to MediBlaze AI v3.0!</h2>
+              <h2>🏥 Welcome to Tabeeb AI v3.0!</h2>
               <p>مساعدك الطبي الذكي — مدعوم بـ <strong>RAG</strong> و<strong>بحث الويب</strong> و<strong>تحليل الصور</strong> والآن مع <strong>ذاكرة المحادثة</strong> و<strong>الملف الصحي الشخصي</strong>.</p>
               <p>✨ <strong>جديد:</strong> أضف ملفك الصحي 👤 لردود مخصصة، استخدم مدقق الأعراض 🩺، وفعّل تذكيرات الأدوية 💊.</p>
               <blockquote>⚠️ <strong>تنبيه:</strong> لأغراض تعليمية فقط. استشر طبيبك للتشخيص الطبي المتخصص.</blockquote>
@@ -481,7 +548,7 @@
           <i class="fas fa-paper-plane"></i>
         </button>
       </form>
-      <p class="input-hint">MediBlaze provides educational health information only — not a substitute for professional medical advice.</p>
+      <p class="input-hint">Tabeeb AI provides educational health information only — not a substitute for professional medical advice.</p>
     </div>
 
   </div><!-- /chat-area -->
@@ -490,7 +557,7 @@
 
 <script>
 /* ══════════════════════════════════════════════════════════════════════════
-   MediBlaze AI — Frontend v3.0
+   Tabeeb AI — Frontend v3.0
    Conversation Memory · Health Profile · Symptom Checker
    Medication Reminders · Export PDF · Dark Mode · Streaming · TTS · Voice
    ══════════════════════════════════════════════════════════════════════════ */
@@ -528,16 +595,102 @@ let selectedImageFile  = null;
 let activeTtsBtn       = null;
 const sessionId        = 'mb_' + Date.now();
 
-// ── 1. CONVERSATION MEMORY ──────────────────────────────────────────────
+// ── 1. CONVERSATION MEMORY (persisted in localStorage) ─────────────────
 // Array of {role:'user'|'assistant', content:'...'} — last 8 pairs sent per request
-const conversationMemory = [];
 const MAX_MEMORY = 16; // 8 exchanges
+const conversationMemory = loadMemoryFromStorage();
+
+function loadMemoryFromStorage() {
+  try {
+    const raw = localStorage.getItem('mb-conv-memory');
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr)) return arr.slice(-MAX_MEMORY);
+    }
+  } catch (e) { console.warn('Failed to load conversation memory:', e); }
+  return [];
+}
+
+function saveMemoryToStorage() {
+  try { localStorage.setItem('mb-conv-memory', JSON.stringify(conversationMemory)); }
+  catch (e) { console.warn('Failed to save conversation memory:', e); }
+}
 
 function pushMemory(role, content) {
   conversationMemory.push({ role, content });
   if (conversationMemory.length > MAX_MEMORY)
     conversationMemory.splice(0, conversationMemory.length - MAX_MEMORY);
+  saveMemoryToStorage();
 }
+
+// ── CHAT MESSAGES PERSISTENCE ────────────────────────────────────────────
+function saveChatMessages() {
+  try {
+    const msgs = [];
+    chatInner.querySelectorAll('.message:not(#welcomeMsg)').forEach(el => {
+      const isUser = el.classList.contains('user-message');
+      const contentEl = el.querySelector('.message-content');
+      const timeEl = el.querySelector('.message-time');
+      const imgEl = isUser ? el.querySelector('.message-bubble img') : null;
+      if (contentEl) {
+        msgs.push({
+          role: isUser ? 'user' : 'assistant',
+          html: contentEl.innerHTML,
+          text: contentEl.textContent,
+          time: timeEl ? timeEl.textContent : '',
+          img: imgEl ? imgEl.src : null,
+        });
+      }
+    });
+    localStorage.setItem('mb-chat-messages', JSON.stringify(msgs));
+  } catch (e) { console.warn('Failed to save chat messages:', e); }
+}
+
+function restoreChatMessages() {
+  try {
+    const raw = localStorage.getItem('mb-chat-messages');
+    if (!raw) return;
+    const msgs = JSON.parse(raw);
+    if (!Array.isArray(msgs) || !msgs.length) return;
+    // Hide quick suggestions if there are restored messages
+    if (quickSuggestions) quickSuggestions.style.display = 'none';
+    msgs.forEach(m => {
+      if (m.role === 'user') {
+        const div = document.createElement('div');
+        div.className = 'message user-message';
+        div.innerHTML = `
+          <div class="message-bubble">
+            <div class="message-content">${m.html}</div>
+            ${m.img ? `<img src="${m.img}" style="max-width:170px;border-radius:10px;margin-top:0.5rem;display:block;" alt="uploaded"/>` : ''}
+            <div class="message-footer"><span class="message-time">${escapeHtml(m.time)}</span></div>
+          </div>`;
+        chatInner.appendChild(div);
+      } else {
+        const ttsId = 'tts_r_' + Math.random().toString(36).slice(2);
+        const div = document.createElement('div');
+        div.className = 'message bot-message';
+        div.innerHTML = `
+          <div class="message-avatar">
+            <img src="/static/doctor-avatar.png" alt="طبيب AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
+          </div>
+          <div class="message-bubble">
+            <div class="message-content" dir="auto">${m.html}</div>
+            <div class="message-footer">
+              <button class="tts-btn" id="${ttsId}"><i class="fas fa-volume-up"></i> Listen</button>
+              <span class="message-time">${escapeHtml(m.time)}</span>
+            </div>
+          </div>`;
+        chatInner.appendChild(div);
+        document.getElementById(ttsId).addEventListener('click', function() { speakText(m.text || '', this); });
+        div.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+      }
+    });
+    scrollToBottom(false);
+  } catch (e) { console.warn('Failed to restore chat messages:', e); }
+}
+
+// Restore chat messages on page load
+restoreChatMessages();
 
 // ── 2. HEALTH PROFILE ────────────────────────────────────────────────────
 let healthProfile = JSON.parse(localStorage.getItem('mb-health-profile') || 'null');
@@ -594,7 +747,7 @@ function checkReminders() {
     if (r.time === hhmm) {
       showToast('💊', `تذكير: ${r.name} ${r.dosage || ''} — ${freqLabel(r.freq)}`);
       if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('💊 MediBlaze — تذكير الدواء', {
+        new Notification('💊 طبيب AI — تذكير الدواء', {
           body: `حان وقت: ${r.name} ${r.dosage || ''}`,
           icon: '/static/logo.png',
         });
@@ -653,7 +806,10 @@ document.getElementById('welcomeTime').textContent = getCurrentTime();
 document.getElementById('sessionTime').textContent  = getCurrentTime();
 
 function scrollToBottom(smooth = true) {
-  setTimeout(() => chatScroll.scrollTo({ top: chatScroll.scrollHeight, behavior: smooth ? 'smooth' : 'auto' }), 60);
+  setTimeout(() => {
+    // Scroll extra 150px beyond scrollHeight to clear the fixed input bar
+    chatScroll.scrollTo({ top: chatScroll.scrollHeight + 150, behavior: smooth ? 'smooth' : 'auto' });
+  }, 80);
 }
 function escapeHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
@@ -723,10 +879,10 @@ function addBotMessage(content) {
   div.className = 'message bot-message';
   div.innerHTML = `
     <div class="message-avatar">
-      <img src="/static/doctor-avatar.png" alt="MediBlaze AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
+      <img src="/static/doctor-avatar.png" alt="طبيب AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
     </div>
     <div class="message-bubble">
-      <div class="message-content">${renderMarkdown(content)}</div>
+      <div class="message-content" dir="auto">${renderMarkdown(content)}</div>
       <div class="message-footer">
         <button class="tts-btn" id="${ttsId}"><i class="fas fa-volume-up"></i> Listen</button>
         <span class="message-time">${getCurrentTime()}</span>
@@ -748,7 +904,7 @@ function createStreamingMessage() {
       <img src="/static/doctor-avatar.png" alt="MediBlaze AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
     </div>
     <div class="message-bubble">
-      <div class="message-content streaming-cursor" id="${cid}"></div>
+      <div class="message-content streaming-cursor" id="${cid}" dir="auto"></div>
       <div class="message-footer" style="display:none" id="footer_${cid}">
         <button class="tts-btn" id="tts_${cid}"><i class="fas fa-volume-up"></i> Listen</button>
         <span class="message-time">${getCurrentTime()}</span>
@@ -861,6 +1017,7 @@ async function handleStreamingResponse(userText) {
             if (cid) finaliseStream(cid, accumulated);
             pushMemory('user', userText);
             pushMemory('assistant', accumulated.trim());
+            saveChatMessages();
             break;
           case 'error':
             removeIndicator('typingIndicator'); removeIndicator('toolIndicator');
@@ -912,7 +1069,7 @@ async function handleImageStream(formData) {
               if (el) { el.innerHTML = renderMarkdown(accumulated); scrollToBottom(false); }
             }
             break;
-          case 'complete': if (cid) finaliseStream(cid, accumulated); break;
+          case 'complete': if (cid) finaliseStream(cid, accumulated); saveChatMessages(); break;
           case 'error':
             removeIndicator('typingIndicator'); removeIndicator('toolIndicator');
             addBotMessage(data.content || 'Image analysis failed.');
@@ -1011,6 +1168,8 @@ newChatBtn.addEventListener('click', () => {
   chatInner.querySelectorAll('.message:not(#welcomeMsg)').forEach(m => m.remove());
   if (quickSuggestions) quickSuggestions.style.display = 'flex';
   conversationMemory.length = 0;
+  saveMemoryToStorage();
+  localStorage.removeItem('mb-chat-messages');
   userMessageEl.value = ''; stopTts(); clearImage(); setInputEnabled(true);
   if (isMobile()) sidebar.classList.add('collapsed');
   showToast('💬', 'تم بدء محادثة جديدة');
@@ -1502,6 +1661,91 @@ window.calcBodyFat = function() {
 
 /* ── Init ──────────────────────────────────────────────────────────────────────── */
 userMessageEl.focus();
+
+// ── PWA: Register Service Worker ──────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js', { scope: '/' })
+    .then(reg => console.log('[MediBlaze PWA] Service Worker registered:', reg.scope))
+    .catch(err => console.warn('[MediBlaze PWA] SW registration failed:', err));
+}
+
+// ── PWA: Install Button & Banner Logic ────────────────────────────────────────
+let deferredInstallPrompt = null;
+const installBtn         = document.getElementById('installPwaBtn');
+const installBanner      = document.getElementById('installBanner');
+const installBannerBtn   = document.getElementById('installBannerBtn');
+const installBannerClose = document.getElementById('installBannerClose');
+const iosModal           = document.getElementById('iosInstallModal');
+const androidModal       = document.getElementById('androidInstallModal');
+const closeIosModal      = document.getElementById('closeIosModal');
+const closeAndroidModal  = document.getElementById('closeAndroidModal');
+
+const isIOS             = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches
+                        || (navigator.standalone === true);
+const isMobileDevice    = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+
+function showInstallUI() {
+  if (installBtn)    installBtn.style.display  = 'flex';
+  if (installBanner) installBanner.style.display = 'block';
+}
+function hideInstallUI() {
+  if (installBtn)    installBtn.style.display  = 'none';
+  if (installBanner) installBanner.style.display = 'none';
+}
+function openModal(el)  { if (el) el.classList.add('open'); }
+function closeModal2(el) { if (el) el.classList.remove('open'); }
+
+// Capture Chrome's native install prompt when available
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+
+// Main click handler — always does something useful
+function onInstallClick() {
+  if (isIOS) {
+    // iOS Safari: show manual steps
+    openModal(iosModal);
+  } else if (deferredInstallPrompt) {
+    // Android Chrome with native prompt available: trigger it
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(() => {
+      deferredInstallPrompt = null;
+      hideInstallUI();
+    });
+  } else {
+    // Android Chrome without native prompt (HTTP): show manual steps
+    openModal(androidModal);
+  }
+}
+
+if (installBtn)       installBtn.addEventListener('click', onInstallClick);
+if (installBannerBtn) installBannerBtn.addEventListener('click', onInstallClick);
+
+// Close buttons
+if (installBannerClose) {
+  installBannerClose.addEventListener('click', () => {
+    hideInstallUI();
+    sessionStorage.setItem('installBannerDismissed', '1');
+  });
+}
+if (closeIosModal)     closeIosModal.addEventListener('click', () => closeModal2(iosModal));
+if (closeAndroidModal) closeAndroidModal.addEventListener('click', () => closeModal2(androidModal));
+
+// Close modals on backdrop click
+[iosModal, androidModal].forEach(m => {
+  if (m) m.addEventListener('click', (e) => { if (e.target === m) closeModal2(m); });
+});
+
+// Show banner on mobile if not installed and not dismissed
+if (isMobileDevice && !isInStandaloneMode && !sessionStorage.getItem('installBannerDismissed')) {
+  showInstallUI();
+}
+
+// Hide when actually installed
+window.addEventListener('appinstalled', () => hideInstallUI());
+
 
 })(); // IIFE
 </script>

@@ -1,5 +1,5 @@
 """
-🏥 MediBlaze FastAPI Backend v3.0
+🏥 Tabeeb AI FastAPI Backend v3.0
 Advanced Medical AI Assistant — with Conversation Memory & Health Profile
 """
 
@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="🏥 MediBlaze API",
+    title="🏥 Tabeeb AI API",
     description="Advanced Medical AI Assistant — RAG + Web Search + Vision + Memory",
     version="3.0.0",
     docs_url="/docs",
@@ -172,7 +172,7 @@ def _build_messages(message_text: str,
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    """🏠 Serve the main MediBlaze interface"""
+    """🏠 Serve the main Tabeeb AI interface"""
     try:
         html_file = Path("templates/index.html")
         if html_file.exists():
@@ -180,7 +180,7 @@ async def read_root():
                 content = f.read()
             return HTMLResponse(content=content, status_code=200)
         return HTMLResponse(
-            content="<h1>🏥 MediBlaze API is running</h1><p>Place template in templates/index.html</p>",
+            content="<h1>🏥 Tabeeb AI API is running</h1><p>Place template in templates/index.html</p>",
             status_code=200,
         )
     except Exception as e:
@@ -206,7 +206,7 @@ async def health_check():
 
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat_with_mediblaze(message: ChatMessage):
+async def chat_with_tabeeb(message: ChatMessage):
     """💬 Standard (non-streaming) chat with memory + health profile support"""
     start_time = datetime.now()
     try:
@@ -217,8 +217,16 @@ async def chat_with_mediblaze(message: ChatMessage):
         tools_used: List[str] = []
 
         if response and "messages" in response:
-            response_text = response["messages"][-1].content
-            tools_used    = _extract_tools_used(response["messages"])
+            raw_content  = response["messages"][-1].content
+            # Gemini may return content as a list of parts — normalize to str
+            if isinstance(raw_content, list):
+                response_text = "".join(
+                    part.get("text", "") if isinstance(part, dict) else str(part)
+                    for part in raw_content
+                )
+            else:
+                response_text = raw_content or response_text
+            tools_used = _extract_tools_used(response["messages"])
 
         response_html    = markdown.markdown(response_text, extensions=["extra", "codehilite", "toc"])
         processing_time  = (datetime.now() - start_time).total_seconds()
@@ -245,7 +253,7 @@ async def chat_with_mediblaze(message: ChatMessage):
 
 
 @app.post("/chat/stream")
-async def stream_chat_with_mediblaze(message: ChatMessage):
+async def stream_chat_with_tabeeb(message: ChatMessage):
     """⚡ True token-by-token streaming with conversation memory + health profile"""
 
     async def generate() -> AsyncGenerator[str, None]:
@@ -274,7 +282,15 @@ async def stream_chat_with_mediblaze(message: ChatMessage):
                     yield f"data: {json.dumps({'type': 'tool_end'})}\n\n"
 
                 elif etype == "on_chat_model_stream":
-                    chunk = event["data"]["chunk"].content
+                    raw_chunk = event["data"]["chunk"].content
+                    # Gemini sometimes returns a list of content parts instead of a plain string
+                    if isinstance(raw_chunk, list):
+                        chunk = "".join(
+                            part.get("text", "") if isinstance(part, dict) else str(part)
+                            for part in raw_chunk
+                        )
+                    else:
+                        chunk = raw_chunk or ""
                     if chunk:
                         full_content += chunk
                         yield f"data: {json.dumps({'type': 'content', 'content': chunk})}\n\n"

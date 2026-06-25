@@ -93,7 +93,7 @@ def analyze_medical_image(image_bytes: bytes, mime_type: str, user_question: str
         patient_q = f"\n\n**{'سؤال المريض' if lang == 'ar' else 'Patient question'}:** {user_question}" if user_question else ""
 
         prompt = (
-            "You are **MediBlaze Vision** 🏥, an expert AI medical image analyst.\n\n"
+            "You are **Tabeeb AI Vision** 🏥, an expert AI medical image analyst.\n\n"
             f"{language_instruction}"
             "Carefully analyze the uploaded medical image and produce a thorough, structured report "
             "covering every applicable section:\n\n"
