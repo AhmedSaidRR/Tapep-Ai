@@ -662,3 +662,191 @@ html,body {
   border:1px solid var(--mb-input-border);
 }
 .calc-goal-item small { font-size:0.7rem; color:var(--mb-muted); display:block; margin-top:0.2rem; }
+
+
+
+/* ── Lab Report Scanner & Drug Interaction Checker Styles ────────────────────── */
+
+/* Scanner Upload Zone */
+.scanner-upload-zone {
+  border: 2px dashed var(--mb-glass-border);
+  background: var(--mb-surface-2);
+  border-radius: var(--mb-radius-md);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+.scanner-upload-zone:hover, .scanner-upload-zone.dragover {
+  border-color: var(--mb-primary);
+  background: rgba(26, 115, 232, 0.05);
+}
+[data-theme="dark"] .scanner-upload-zone:hover, [data-theme="dark"] .scanner-upload-zone.dragover {
+  border-color: var(--mb-accent);
+  background: rgba(38, 166, 154, 0.05);
+}
+.upload-zone-icon {
+  font-size: 2.5rem;
+  color: var(--mb-muted);
+}
+.scanner-upload-zone:hover .upload-zone-icon {
+  color: var(--mb-primary);
+}
+[data-theme="dark"] .scanner-upload-zone:hover .upload-zone-icon {
+  color: var(--mb-accent);
+}
+.scanner-upload-zone p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+}
+.scanner-upload-zone p span {
+  color: var(--mb-primary);
+  text-decoration: underline;
+}
+[data-theme="dark"] .scanner-upload-zone p span {
+  color: var(--mb-accent);
+}
+.scanner-upload-zone small {
+  color: var(--mb-muted);
+  font-size: 0.75rem;
+}
+
+/* Scanner Preview Row */
+.scanner-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--mb-surface-2);
+  padding: 0.75rem;
+  border-radius: var(--mb-radius-sm);
+  border: 1px solid var(--mb-glass-border);
+  margin-top: 1rem;
+}
+#labPreviewImg {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--mb-radius-xs);
+  border: 1px solid var(--mb-glass-border);
+}
+.preview-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.preview-filename {
+  font-size: 0.85rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+/* Lab Results Table */
+.lab-results-table th, .lab-results-table td {
+  padding: 0.75rem;
+  font-size: 0.8rem;
+  border-bottom: 1px solid var(--mb-glass-border);
+}
+.lab-results-table tbody tr:hover {
+  background: rgba(0,0,0,0.02);
+}
+[data-theme="dark"] .lab-results-table tbody tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+.lab-status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+}
+.lab-status-badge.status-normal {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+}
+.lab-status-badge.status-low {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+.lab-status-badge.status-high {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+/* Drug Interaction Row & Inputs */
+.drug-input-row {
+  animation: slideIn 0.2s ease;
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Drug Interaction Results */
+.interaction-card {
+  border-right: 4px solid transparent;
+  background: var(--mb-surface-2);
+  padding: 1rem;
+  border-radius: var(--mb-radius-sm);
+  border: 1px solid var(--mb-glass-border);
+  border-right-width: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.interaction-card.sev-major {
+  border-right-color: #ef4444;
+}
+.interaction-card.sev-moderate {
+  border-right-color: #f59e0b;
+}
+.interaction-card.sev-safe {
+  border-right-color: #22c55e;
+}
+.interaction-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.interaction-severity-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  color: #fff;
+  font-weight: 700;
+}
+.interaction-card.sev-major .interaction-severity-badge {
+  background: #ef4444;
+}
+.interaction-card.sev-moderate .interaction-severity-badge {
+  background: #f59e0b;
+  color: #111;
+}
+.interaction-card.sev-safe .interaction-severity-badge {
+  background: #22c55e;
+}
+.interaction-description {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--mb-text);
+}
+.interaction-recommendation {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--mb-primary);
+  border-top: 1px dashed var(--mb-glass-border);
+  padding-top: 0.4rem;
+  margin-top: 0.2rem;
+}
+[data-theme="dark"] .interaction-recommendation {
+  color: var(--mb-accent);
+}
+

@@ -16,6 +16,7 @@ import markdown
 from datetime import datetime
 import json
 import asyncio
+import google.generativeai as genai
 
 from langchain_core.messages import HumanMessage, AIMessage
 from agent.agent import agent
@@ -45,40 +46,16 @@ app.mount("/static", StaticFiles(directory="static", check_dir=False), name="sta
 
 
 # ── Pydantic Models ───────────────────────────────────────────────────────────
-
-class HealthProfile(BaseModel):
-    name: Optional[str] = ""
-    age: Optional[str] = ""
-    gender: Optional[str] = ""
-    weight: Optional[str] = ""
-    height: Optional[str] = ""
-    blood_type: Optional[str] = ""
-    conditions: Optional[str] = ""
-    medications: Optional[str] = ""
-    allergies: Optional[str] = ""
-
-class HistoryEntry(BaseModel):
-    role: str   # "user" or "assistant"
-    content: str
-
-class ChatMessage(BaseModel):
-    message: str
-    session_id: str = "default"
-    health_profile: Optional[Dict[str, Any]] = None
-    history: Optional[List[Dict[str, str]]] = None   # [{role, content}, ...]
-
-class ChatResponse(BaseModel):
-    response: str
-    response_html: str
-    timestamp: datetime
-    processing_time: float
-    tools_used: List[str] = []
-
-class HealthCheck(BaseModel):
-    status: str
-    timestamp: datetime
-    version: str
-    services: Dict[str, str]
+from models import (
+    HealthProfile,
+    HistoryEntry,
+    ChatMessage,
+    ChatResponse,
+    HealthCheck,
+    DrugInteractionRequest,
+    DrugInteractionResponse,
+    LabReportResponse
+)
 
 
 # ── In-memory conversation store ──────────────────────────────────────────────
@@ -134,6 +111,7 @@ def _build_messages(message_text: str,
             "conditions":  "Chronic conditions / مشاكل مزمنة",
             "medications": "Current medications / أدوية حالية",
             "allergies":   "Known allergies / حساسية",
+            "dialect":     "Preferred response dialect / اللهجة المفضلة للرد",
         }
         parts = []
         for key, label in field_labels.items():
@@ -146,9 +124,12 @@ def _build_messages(message_text: str,
                 "⚕️ PATIENT HEALTH PROFILE — always consider this when formulating your response:\n"
                 + "\n".join(parts)
             )
+            pref_dialect = str(health_profile.get("dialect", "")).strip()
+            if pref_dialect:
+                profile_msg += f"\n\nCRITICAL LANGUAGE INSTRUCTION: You MUST write your response in the patient's preferred dialect/language: '{pref_dialect}'. If they requested a dialect like Egyptian Arabic, Gulf Arabic, or Levantine Arabic, speak naturally and authentically in that dialect. Do not use Modern Standard Arabic (Fusha) unless they chose Standard Arabic."
             messages.append(HumanMessage(content=profile_msg))
             messages.append(AIMessage(
-                content="✅ Health profile noted. I will personalise all my responses based on this patient information."
+                content="✅ Health profile and preferred dialect noted. I will personalise all my responses and speak in their preferred language/dialect."
             ))
 
     # ── 2. Conversation History (Memory) ──────────────────────────────────────
@@ -374,6 +355,116 @@ async def stream_chat_with_image(
             "X-Accel-Buffering": "no",
         },
     )
+
+
+def clean_json_response(text: str) -> str:
+    """
+    Cleans markdown code block wraps from LLM JSON outputs.
+    """
+    text = text.strip()
+    # Remove leading ```json or ``` if present
+    if text.startswith("```"):
+        lines = text.split("\n")
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines[-1].startswith("```"):
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+    return text
+
+
+# ── Lab Scanner & Drug Checker Endpoints ─────────────────────────────────────
+
+@app.post("/api/meds/check-interactions", response_model=DrugInteractionResponse)
+async def check_drug_interactions(request: DrugInteractionRequest):
+    """
+    Check for potential interactions between a list of medications using Gemini.
+    """
+    meds = request.medications
+    if len(meds) < 2:
+        return DrugInteractionResponse(
+            interactions=[],
+            summary="الرجاء إدخال دواءين على الأقل للتحقق من وجود تعارض."
+        )
+    
+    try:
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        meds_str = ", ".join(meds)
+        
+        prompt = (
+            "You are a clinical pharmacologist. Check for any drug-drug interactions between these medications:\n"
+            f"{meds_str}\n\n"
+            "Analyze every pair of medications in the list. Provide the severity (\"🔴 Major\", \"🟡 Moderate\", or \"🟢 Safe\"), "
+            "a clinical explanation in Arabic, and recommendations or safer alternatives in Arabic.\n\n"
+            "You MUST return your response as a valid JSON object matching the following structure:\n"
+            "{\n"
+            "  \"interactions\": [\n"
+            "    {\n"
+            "      \"drugs\": [\"Medication A\", \"Medication B\"],\n"
+            "      \"severity\": \"🔴 Major\" or \"🟡 Moderate\" or \"🟢 Safe\",\n"
+            "      \"description\": \"شرح التعارض الدوائي بالتفصيل بالعربية ولماذا يحدث وما هي آثاره الجانبية\",\n"
+            "      \"recommendation\": \"النصيحة الطبية والبدائل الأكثر أماناً للمريض بالعربية\"\n"
+            "    }\n"
+            "  ],\n"
+            "  \"summary\": \"ملخص أمان عام لجميع الأدوية المدرجة ونصائح وقائية عامة بالعربية\"\n"
+            "}\n\n"
+            "Strictly return ONLY the raw JSON object. Do not include markdown codeblocks or any additional commentary."
+        )
+
+        response = model.generate_content(
+            prompt,
+            generation_config={"response_mime_type": "application/json"}
+        )
+        cleaned = clean_json_response(response.text)
+        data = json.loads(cleaned)
+        return DrugInteractionResponse(**data)
+        
+    except Exception as e:
+        logger.error(f"Drug interaction check error: {e}")
+        status_code = 500
+        detail_msg = f"Failed to check interactions: {str(e)}"
+        err_str = str(e).lower()
+        if "quota exceeded" in err_str or "429" in err_str or "resource exhausted" in err_str:
+            status_code = 429
+            detail_msg = "لقد تجاوزت الحصة اليومية المجانية لمفتاح Gemini API الخاص بك (Rate Limit / Quota Exceeded). يرجى المحاولة لاحقاً أو استخدام مفتاح مدفوع."
+        raise HTTPException(status_code=status_code, detail=detail_msg)
+
+
+@app.post("/api/lab-scanner/analyze", response_model=LabReportResponse)
+async def analyze_lab_report(
+    image: UploadFile = File(...),
+    notes: str = Form(default=""),
+):
+    """
+    Upload an image of a lab test and get a structured analysis of parameters.
+    """
+    mime = image.content_type or ""
+    if not mime.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Please upload an image file.")
+        
+    try:
+        from agent.utils.vision import analyze_lab_report_structured
+        image_bytes = await image.read()
+        
+        result_json = analyze_lab_report_structured(
+            image_bytes=image_bytes,
+            mime_type=mime,
+            notes=notes,
+        )
+        
+        cleaned = clean_json_response(result_json)
+        data = json.loads(cleaned)
+        return LabReportResponse(**data)
+        
+    except Exception as e:
+        logger.error(f"Lab report endpoint error: {e}")
+        status_code = 500
+        detail_msg = f"Failed to analyze lab report: {str(e)}"
+        err_str = str(e).lower()
+        if "quota exceeded" in err_str or "429" in err_str or "resource exhausted" in err_str:
+            status_code = 429
+            detail_msg = "لقد تجاوزت الحصة اليومية المجانية لمفتاح Gemini API الخاص بك (Rate Limit / Quota Exceeded). يرجى المحاولة لاحقاً أو استخدام مفتاح مدفوع."
+        raise HTTPException(status_code=status_code, detail=detail_msg)
 
 
 # ── Conversation History Endpoints ────────────────────────────────────────────

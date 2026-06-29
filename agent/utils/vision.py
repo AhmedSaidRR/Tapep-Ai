@@ -116,3 +116,48 @@ def analyze_medical_image(image_bytes: bytes, mime_type: str, user_question: str
     except Exception as e:
         logger.error(f"Vision error: {str(e)}")
         raise RuntimeError(f"Image analysis failed: {str(e)}")
+
+
+def analyze_lab_report_structured(image_bytes: bytes, mime_type: str, notes: str = "") -> str:
+    """
+    Analyze a lab test image using Gemini Vision and return a structured JSON string.
+    The response is guaranteed to be a JSON object matching LabReportResponse schema.
+    """
+    try:
+        model = genai.GenerativeModel("gemini-2.5-flash")
+        
+        prompt = (
+            "You are an expert AI clinical pathologist. Carefully analyze the uploaded lab report or test result image.\n"
+            "Extract all laboratory parameters, their values, units, reference ranges, and flag their status (Low, High, or Normal).\n"
+            "Also, write a clinical interpretation for each parameter in Arabic, and provide a general summary/recommendation in Arabic.\n\n"
+            "You MUST return your response as a valid JSON object matching the following structure:\n"
+            "{\n"
+            "  \"indicators\": [\n"
+            "    {\n"
+            "      \"parameter\": \"English name of the parameter\",\n"
+            "      \"value\": \"the measured numerical/textual value\",\n"
+            "      \"reference_range\": \"the reference/normal range\",\n"
+            "      \"unit\": \"the unit of measurement (e.g. g/dL, mg/dL)\",\n"
+            "      \"status\": \"Low\" or \"High\" or \"Normal\",\n"
+            "      \"interpretation\": \"شرح مبسط وموجز بالعربية لما يعنيه هذا المؤشر بالنسبة للمريض\"\n"
+            "    }\n"
+            "  ],\n"
+            "  \"summary\": \"ملخص طبي شامل لنتائج التحاليل ونصائح توجيهية للمريض بالعربية\"\n"
+            "}\n\n"
+            f"Patient's additional clinical notes: {notes}\n\n"
+            "Strictly return ONLY the raw JSON object. Do not include markdown codeblocks or any additional commentary."
+        )
+
+        image_part = {
+            "mime_type": mime_type,
+            "data": base64.b64encode(image_bytes).decode("utf-8"),
+        }
+
+        response = model.generate_content(
+            [prompt, image_part],
+            generation_config={"response_mime_type": "application/json"}
+        )
+        return response.text
+    except Exception as e:
+        logger.error(f"Structured vision error: {str(e)}")
+        raise RuntimeError(f"Lab report analysis failed: {str(e)}")
