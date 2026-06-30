@@ -31,6 +31,9 @@
   <!-- jsPDF for Export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <link rel="stylesheet" href="/static/styles.css?v=3.1" />
 </head>
 <body>
@@ -563,6 +566,11 @@
     <a href="/docs" target="_blank" class="nav-icon-btn" title="API Documentation" aria-label="API docs">
       <i class="fas fa-book-open"></i>
     </a>
+    <!-- Auth Button -->
+    <button id="authBtn" class="nav-auth-btn" title="تسجيل الدخول" aria-label="Login">
+      <i class="fas fa-user-circle"></i>
+      <span id="authBtnLabel">دخول</span>
+    </button>
     <!-- Install PWA Button -->
     <button id="installPwaBtn" class="nav-install-btn" title="ثبّت التطبيق على هاتفك" aria-label="Install app" style="display:none">
       <i class="fas fa-download"></i>
@@ -756,5 +764,6 @@
 
 
 <script src="/static/app.js"></script>
+<script src="/static/auth.js"></script>
 </body>
 </html>
