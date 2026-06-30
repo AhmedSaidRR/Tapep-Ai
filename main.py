@@ -1,5 +1,5 @@
 """
-🏥 Tabeeb AI FastAPI Backend v3.0
+🏥 Tapep AI FastAPI Backend v3.0
 Advanced Medical AI Assistant — with Conversation Memory & Health Profile
 """
 
@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="🏥 Tabeeb AI API",
+    title="🏥 Tapep AI API",
     description="Advanced Medical AI Assistant — RAG + Web Search + Vision + Memory",
     version="3.0.0",
     docs_url="/docs",
@@ -153,7 +153,7 @@ def _build_messages(message_text: str,
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    """🏠 Serve the main Tabeeb AI interface"""
+    """🏠 Serve the main Tapep AI interface"""
     try:
         html_file = Path("templates/index.html")
         if html_file.exists():
@@ -161,7 +161,7 @@ async def read_root():
                 content = f.read()
             return HTMLResponse(content=content, status_code=200)
         return HTMLResponse(
-            content="<h1>🏥 Tabeeb AI API is running</h1><p>Place template in templates/index.html</p>",
+            content="<h1>🏥 Tapep AI API is running</h1><p>Place template in templates/index.html</p>",
             status_code=200,
         )
     except Exception as e:
@@ -187,7 +187,7 @@ async def health_check():
 
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat_with_tabeeb(message: ChatMessage):
+async def chat_with_tapep(message: ChatMessage):
     """💬 Standard (non-streaming) chat with memory + health profile support"""
     start_time = datetime.now()
     try:
@@ -234,7 +234,7 @@ async def chat_with_tabeeb(message: ChatMessage):
 
 
 @app.post("/chat/stream")
-async def stream_chat_with_tabeeb(message: ChatMessage):
+async def stream_chat_with_tapep(message: ChatMessage):
     """⚡ True token-by-token streaming with conversation memory + health profile"""
 
     async def generate() -> AsyncGenerator[str, None]:
@@ -388,9 +388,7 @@ async def check_drug_interactions(request: DrugInteractionRequest):
         )
     
     try:
-        model = genai.GenerativeModel("gemini-2.5-flash")
         meds_str = ", ".join(meds)
-        
         prompt = (
             "You are a clinical pharmacologist. Check for any drug-drug interactions between these medications:\n"
             f"{meds_str}\n\n"
@@ -411,14 +409,59 @@ async def check_drug_interactions(request: DrugInteractionRequest):
             "Strictly return ONLY the raw JSON object. Do not include markdown codeblocks or any additional commentary."
         )
 
-        response = model.generate_content(
-            prompt,
-            generation_config={"response_mime_type": "application/json"}
-        )
-        cleaned = clean_json_response(response.text)
+        response_text = None
+        last_err = None
+
+        # Try Gemini models first
+        for model_name in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]:
+            try:
+                logger.info(f"🔄 [Tapep AI] Trying drug interaction check with model: {model_name}")
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(
+                    prompt,
+                    generation_config={"response_mime_type": "application/json"}
+                )
+                if response and response.text:
+                    response_text = response.text
+                    logger.info(f"✅ [Tapep AI] Drug check successful with {model_name}")
+                    break
+            except Exception as ex:
+                logger.warning(f"⚠️ [Tapep AI] Model {model_name} failed: {ex}")
+                last_err = ex
+                continue
+
+        # Fallback to Groq Llama 3.3 70B if Gemini fails and Groq API key is present
+        if not response_text:
+            groq_key = os.getenv("GROQ_API_KEY")
+            if groq_key:
+                try:
+                    logger.info("🔄 [Tapep AI] Falling back to Groq llama-3.3-70b-versatile for drug check")
+                    from langchain_groq import ChatGroq
+                    from langchain_core.messages import SystemMessage, HumanMessage
+                    groq_model = ChatGroq(
+                        model="llama-3.3-70b-versatile",
+                        groq_api_key=groq_key,
+                        temperature=0.2,
+                        model_kwargs={"response_format": {"type": "json_object"}}
+                    )
+                    res = groq_model.invoke([
+                        SystemMessage(content="You are a clinical pharmacologist. Always respond in valid JSON format only."),
+                        HumanMessage(content=prompt)
+                    ])
+                    if res and res.content:
+                        response_text = res.content
+                        logger.info("✅ [Tapep AI] Drug check successful with Groq llama-3.3-70b-versatile")
+                except Exception as ex:
+                    logger.error(f"❌ [Tapep AI] Groq drug check fallback failed: {ex}")
+                    last_err = ex
+
+        if not response_text:
+            raise last_err if last_err else Exception("All LLM providers failed for drug interaction check.")
+
+        cleaned = clean_json_response(response_text)
         data = json.loads(cleaned)
         return DrugInteractionResponse(**data)
-        
+
     except Exception as e:
         logger.error(f"Drug interaction check error: {e}")
         status_code = 500

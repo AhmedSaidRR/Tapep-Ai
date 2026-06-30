@@ -1,6 +1,6 @@
 {
-  "name": "Tabeeb AI — مساعدك الطبي",
-  "short_name": "Tabeeb AI",
+  "name": "Tapep AI — مساعدك الطبي",
+  "short_name": "Tapep AI",
   "description": "مساعد طبي ذكي يجيب على أسئلتك الصحية ويحلل صورك الطبية",
   "start_url": "/",
   "display": "standalone",
@@ -26,7 +26,7 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Tabeeb AI Chat"
+      "label": "Tapep AI Chat"
     }
   ],
   "shortcuts": [

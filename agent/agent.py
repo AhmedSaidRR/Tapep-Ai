@@ -68,7 +68,7 @@ llm_with_tools = resilient_llm.bind_tools(tools)
 
 def llm_call(state: MessagesState):
     """🧠 يعالج الاستفسار الطبي مع 4 طبقات احتياطية تلقائية"""
-    logger.info("🧠 [Tabeeb AI] Calling LLM (4-tier fallback chain active).")
+    logger.info("🧠 [Tapep AI] Calling LLM (4-tier fallback chain active).")
     return {
         "messages": [
             llm_with_tools.invoke(
@@ -87,7 +87,7 @@ def tool_node(state: dict):
             observation = tool.invoke(tool_call["args"])
             result.append(ToolMessage(content=str(observation), tool_call_id=tool_call["id"]))
         except Exception as e:
-            logger.error(f"❌ [Tabeeb AI] Tool execution error: {str(e)}")
+            logger.error(f"❌ [Tapep AI] Tool execution error: {str(e)}")
             result.append(ToolMessage(
                 content="⚠️ حدث خطأ أثناء تشغيل قاعدة البيانات الطبية. سنعتمد على المعرفة السريرية المباشرة للموديل.",
                 tool_call_id=tool_call["id"],

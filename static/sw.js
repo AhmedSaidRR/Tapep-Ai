@@ -1,5 +1,5 @@
-// ── Tabeeb AI PWA Service Worker ──────────────────────────────────────────────
-const CACHE_NAME = "tabeeb-ai-v1";
+// ── Tapep AI PWA Service Worker ──────────────────────────────────────────────
+const CACHE_NAME = "tapep-ai-v1";
 
 // Static assets to cache on install (shell caching)
 const SHELL_ASSETS = [
@@ -14,7 +14,7 @@ const SHELL_ASSETS = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("[Tabeeb AI SW] Caching app shell…");
+      console.log("[Tapep AI SW] Caching app shell…");
       return cache.addAll(SHELL_ASSETS);
     })
   );
@@ -29,7 +29,7 @@ self.addEventListener("activate", (event) => {
         keys
           .filter((key) => key !== CACHE_NAME)
           .map((key) => {
-            console.log("[Tabeeb AI SW] Deleting old cache:", key);
+            console.log("[Tapep AI SW] Deleting old cache:", key);
             return caches.delete(key);
           })
       )
@@ -89,7 +89,7 @@ self.addEventListener("fetch", (event) => {
 // ── Push Notifications (future use) ──────────────────────────────────────────
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
-  const title = data.title || "Tabeeb AI 💊";
+  const title = data.title || "Tapep AI 💊";
   const body = data.body || "تذكير: موعد دوائك الآن";
 
   event.waitUntil(
@@ -98,7 +98,7 @@ self.addEventListener("push", (event) => {
       icon: "/static/icon-192x192.png",
       badge: "/static/icon-72x72.png",
       vibrate: [200, 100, 200],
-      tag: "tabeeb-ai-reminder",
+      tag: "tapep-ai-reminder",
       data: { url: data.url || "/" },
     })
   );

@@ -1,5 +1,5 @@
 """
-📚 Tabeeb AI Ingestion Script
+📚 Tapep AI Ingestion Script
 Loads PDF(s) from ./Data, splits them into optimised chunks, and uploads them to Pinecone.
 
 IMPORTANT: INDEX_NAME and EMBEDDING_MODEL MUST match agent/utils/tools.py exactly,

@@ -106,7 +106,7 @@ function restoreChatMessages() {
         div.className = 'message bot-message';
         div.innerHTML = `
           <div class="message-avatar">
-            <img src="/static/doctor-avatar.png" alt="طبيب AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
+            <img src="/static/doctor-avatar.png" alt="Tapep AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
           </div>
           <div class="message-bubble">
             <div class="message-content" dir="auto">${m.html}</div>
@@ -269,7 +269,7 @@ function checkReminders() {
     if (r.time === hhmm) {
       showToast('💊', `تذكير: ${r.name} ${r.dosage || ''} — ${freqLabel(r.freq)}`);
       if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('💊 طبيب AI — تذكير الدواء', {
+        new Notification('💊 Tapep AI — تذكير الدواء', {
           body: `حان وقت: ${r.name} ${r.dosage || ''}`,
           icon: '/static/logo.png',
         });
@@ -399,7 +399,7 @@ function addBotMessage(content) {
   div.className = 'message bot-message';
   div.innerHTML = `
     <div class="message-avatar">
-      <img src="/static/doctor-avatar.png" alt="طبيب AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
+      <img src="/static/doctor-avatar.png" alt="Tapep AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
     </div>
     <div class="message-bubble">
       <div class="message-content" dir="auto">${renderMarkdown(content)}</div>
@@ -682,9 +682,186 @@ function setInputEnabled(on) {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
+   MULTI-CHAT SESSIONS
+   ══════════════════════════════════════════════════════════════════════════ */
+const MAX_SAVED_CHATS = 30;
+
+// Load saved chats array from localStorage
+function getSavedChats() {
+  try { return JSON.parse(localStorage.getItem('mb-saved-chats') || '[]'); }
+  catch { return []; }
+}
+
+// Persist saved chats array
+function setSavedChats(arr) {
+  try { localStorage.setItem('mb-saved-chats', JSON.stringify(arr)); }
+  catch (e) { console.warn('Failed to save chats:', e); }
+}
+
+// Generate a short title from the first user message text
+function generateChatTitle(msgs) {
+  const first = (msgs || []).find(m => m.role === 'user');
+  if (!first) return 'محادثة طبية';
+  const txt = (first.text || first.html || '').replace(/<[^>]*>/g, '').trim();
+  return txt.length > 45 ? txt.slice(0, 45) + '…' : (txt || 'محادثة طبية');
+}
+
+// Save the CURRENT open chat (messages + memory) as a new entry, only if it has content
+function archiveCurrentChat() {
+  const msgs = [];
+  chatInner.querySelectorAll('.message:not(#welcomeMsg)').forEach(el => {
+    const isUser = el.classList.contains('user-message');
+    const contentEl = el.querySelector('.message-content');
+    const timeEl = el.querySelector('.message-time');
+    const imgEl = isUser ? el.querySelector('.message-bubble img') : null;
+    if (contentEl) {
+      msgs.push({
+        role: isUser ? 'user' : 'assistant',
+        html: contentEl.innerHTML,
+        text: contentEl.textContent,
+        time: timeEl ? timeEl.textContent : '',
+        img: imgEl ? imgEl.src : null,
+      });
+    }
+  });
+
+  if (!msgs.length) return; // nothing to save
+
+  const saved = getSavedChats();
+  const entry = {
+    id: 'chat_' + Date.now(),
+    title: generateChatTitle(msgs),
+    date: new Date().toLocaleDateString('ar-EG', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }),
+    msgs,
+    memory: conversationMemory.slice(),
+  };
+  saved.unshift(entry); // newest first
+  if (saved.length > MAX_SAVED_CHATS) saved.pop();
+  setSavedChats(saved);
+  renderSavedChats();
+}
+
+// Render saved chats list in sidebar
+function renderSavedChats() {
+  const container = document.getElementById('sidebarSessions');
+  if (!container) return;
+
+  // Keep the "Current Session" item
+  const currentItem = document.getElementById('currentSessionItem');
+  container.innerHTML = '';
+  if (currentItem) container.appendChild(currentItem);
+
+  const saved = getSavedChats();
+  if (!saved.length) {
+    const empty = document.createElement('p');
+    empty.className = 'sessions-empty';
+    empty.textContent = 'لا توجد محادثات محفوظة بعد';
+    container.appendChild(empty);
+    return;
+  }
+
+  saved.forEach(entry => {
+    const item = document.createElement('div');
+    item.className = 'session-item';
+    item.dataset.id = entry.id;
+    item.innerHTML = `
+      <span class="session-icon">💬</span>
+      <span class="session-label">
+        <span class="session-title">${escapeHtml(entry.title)}</span>
+        <span class="session-date">${escapeHtml(entry.date)}</span>
+      </span>
+      <button class="session-del" title="حذف" data-id="${entry.id}"><i class="fas fa-trash"></i></button>`;
+
+    // Click item → load that chat (read-only view)
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('.session-del')) return;
+      loadSavedChat(entry);
+    });
+
+    // Delete button
+    item.querySelector('.session-del').addEventListener('click', (e) => {
+      e.stopPropagation();
+      deleteSavedChat(entry.id);
+    });
+
+    container.appendChild(item);
+  });
+}
+
+// Load a saved chat into the chat area (view mode)
+function loadSavedChat(entry) {
+  // Mark current session as inactive
+  document.getElementById('currentSessionItem')?.classList.remove('active');
+  document.querySelectorAll('.session-item').forEach(i => i.classList.remove('active'));
+  const targetItem = document.querySelector(`.session-item[data-id="${entry.id}"]`);
+  if (targetItem) targetItem.classList.add('active');
+
+  // Clear chat area
+  chatInner.querySelectorAll('.message:not(#welcomeMsg)').forEach(m => m.remove());
+  if (quickSuggestions) quickSuggestions.style.display = 'none';
+
+  // Render saved messages
+  entry.msgs.forEach(m => {
+    if (m.role === 'user') {
+      const div = document.createElement('div');
+      div.className = 'message user-message';
+      div.innerHTML = `
+        <div class="message-bubble">
+          <div class="message-content">${m.html}</div>
+          ${m.img ? `<img src="${m.img}" style="max-width:170px;border-radius:10px;margin-top:0.5rem;display:block;" alt="uploaded"/>` : ''}
+          <div class="message-footer"><span class="message-time">${escapeHtml(m.time)}</span></div>
+        </div>`;
+      chatInner.appendChild(div);
+    } else {
+      const ttsId = 'tts_s_' + Math.random().toString(36).slice(2);
+      const div = document.createElement('div');
+      div.className = 'message bot-message';
+      div.innerHTML = `
+        <div class="message-avatar">
+          <img src="/static/doctor-avatar.png" alt="Tabeeb AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'"/>
+        </div>
+        <div class="message-bubble">
+          <div class="message-content" dir="auto">${m.html}</div>
+          <div class="message-footer">
+            <button class="tts-btn" id="${ttsId}"><i class="fas fa-volume-up"></i> Listen</button>
+            <span class="message-time">${escapeHtml(m.time)}</span>
+          </div>
+        </div>`;
+      chatInner.appendChild(div);
+      document.getElementById(ttsId)?.addEventListener('click', function() { speakText(m.text || '', this); });
+      div.querySelectorAll('pre code').forEach(el => hljs.highlightElement(el));
+    }
+  });
+
+  scrollToBottom(false);
+  if (isMobile()) sidebar.classList.add('collapsed');
+  showToast('📂', `تم فتح: ${entry.title}`);
+}
+
+// Delete a saved chat by id
+function deleteSavedChat(id) {
+  let saved = getSavedChats();
+  saved = saved.filter(c => c.id !== id);
+  setSavedChats(saved);
+  renderSavedChats();
+  showToast('🗑️', 'تم حذف المحادثة');
+}
+
+// Render on page load
+renderSavedChats();
+
+/* ══════════════════════════════════════════════════════════════════════════
    SIDEBAR ACTIONS
    ══════════════════════════════════════════════════════════════════════════ */
 newChatBtn.addEventListener('click', () => {
+  // Save current chat before clearing
+  archiveCurrentChat();
+
+  // Reset to current session
+  document.querySelectorAll('.session-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('currentSessionItem')?.classList.add('active');
+
+  // Clear chat area
   chatInner.querySelectorAll('.message:not(#welcomeMsg)').forEach(m => m.remove());
   if (quickSuggestions) quickSuggestions.style.display = 'flex';
   conversationMemory.length = 0;
@@ -692,12 +869,21 @@ newChatBtn.addEventListener('click', () => {
   localStorage.removeItem('mb-chat-messages');
   userMessageEl.value = ''; stopTts(); clearImage(); setInputEnabled(true);
   if (isMobile()) sidebar.classList.add('collapsed');
-  showToast('💬', 'تم بدء محادثة جديدة');
+  showToast('💬', 'تم حفظ المحادثة وبدء محادثة جديدة');
 });
 
 clearHistoryBtn.addEventListener('click', async () => {
   try { await fetch(`/conversation/${sessionId}`, { method: 'DELETE' }); } catch {}
-  newChatBtn.click();
+  // Clear but don't archive (explicit clear)
+  chatInner.querySelectorAll('.message:not(#welcomeMsg)').forEach(m => m.remove());
+  if (quickSuggestions) quickSuggestions.style.display = 'flex';
+  conversationMemory.length = 0;
+  saveMemoryToStorage();
+  localStorage.removeItem('mb-chat-messages');
+  document.querySelectorAll('.session-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('currentSessionItem')?.classList.add('active');
+  userMessageEl.value = ''; stopTts(); clearImage(); setInputEnabled(true);
+  showToast('🗑️', 'تم مسح المحادثة الحالية');
 });
 
 /* ══════════════════════════════════════════════════════════════════════════

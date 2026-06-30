@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>طبيب AI — مساعدك الطبي الذكي</title>
-  <meta name="description" content="طبيب AI — مساعد طبي ذكي يجيب على أسئلتك الصحية بدقة ويحلل صورك الطبية لحظياً." />
+  <title>Tapep AI — مساعدك الطبي الذكي</title>
+  <meta name="description" content="Tapep AI — مساعد طبي ذكي يجيب على أسئلتك الصحية بدقة ويحلل صورك الطبية لحظياً." />
   <link rel="icon" type="image/png" href="/static/icon-192x192.png" />
 
   <!-- PWA Manifest & Meta -->
@@ -13,7 +13,7 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Tabeeb AI" />
+  <meta name="apple-mobile-web-app-title" content="Tapep AI" />
   <link rel="apple-touch-icon" href="/static/icon-152x152.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/static/icon-192x192.png" />
 
@@ -282,9 +282,9 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" id="cancelInteractionBtn">إلغاء</button>
-      <button class="btn btn-primary" id="checkInteractionsBtn"><i class="fas fa-spinner fa-spin" id="interactionSpinIcon" style="display:none"></i> فحص الأدوية</button>
-      <button class="btn btn-success" id="sendInteractionsToChatBtn" style="display:none"><i class="fas fa-comment-medical"></i> إرسال التقرير للمحادثة</button>
+      <button type="button" class="btn btn-ghost" id="cancelInteractionBtn">إلغاء</button>
+      <button type="button" class="btn btn-primary" id="checkInteractionsBtn"><i class="fas fa-spinner fa-spin" id="interactionSpinIcon" style="display:none"></i> فحص الأدوية</button>
+      <button type="button" class="btn btn-success" id="sendInteractionsToChatBtn" style="display:none"><i class="fas fa-comment-medical"></i> إرسال التقرير للمحادثة</button>
     </div>
   </div>
 </div>
@@ -527,8 +527,8 @@
     <i class="fas fa-bars"></i>
   </button>
   <a href="#" class="brand">
-    <img src="/static/logo.png" alt="Tabeeb AI" class="brand-logo" onerror="this.style.display='none'" />
-    <span class="brand-name">طبيب AI</span>
+    <img src="/static/logo.png" alt="Tapep AI" class="brand-logo" onerror="this.style.display='none'" />
+    <span class="brand-name">Tapep AI</span>
     <span class="brand-sub">v3.0</span>
   </a>
   <div class="nav-controls">
@@ -576,7 +576,7 @@
   <div class="install-banner">
     <div class="install-banner-icon">📲</div>
     <div class="install-banner-text">
-      <strong>ثبّت طبيب AI على هاتفك!</strong>
+      <strong>ثبّت Tapep AI على هاتفك!</strong>
       <span>استخدمه كتطبيق بدون متصفح</span>
     </div>
     <button id="installBannerBtn" class="install-banner-cta">تثبيت الآن</button>
@@ -631,7 +631,7 @@
   <!-- ── SIDEBAR ─────────────────────────────────────────────────────────── -->
   <aside class="sidebar" id="sidebar" aria-label="Sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-title">🏥 طبيب AI</span>
+      <span class="sidebar-title">🏥 Tapep AI</span>
       <button class="sidebar-new-btn" id="newChatBtn" aria-label="New conversation">
         <i class="fas fa-plus"></i> New Chat
       </button>
@@ -692,12 +692,12 @@
         <!-- Welcome -->
         <div class="message bot-message" id="welcomeMsg">
           <div class="message-avatar">
-            <img src="/static/doctor-avatar.png" alt="طبيب AI"
+            <img src="/static/doctor-avatar.png" alt="Tapep AI"
                  onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
           </div>
           <div class="message-bubble">
             <div class="message-content">
-              <h2>🏥 Welcome to Tabeeb AI v3.0!</h2>
+              <h2>🏥 Welcome to Tapep AI v3.0!</h2>
               <p>مساعدك الطبي الذكي — مدعوم بـ <strong>RAG</strong> و<strong>بحث الويب</strong> و<strong>تحليل الصور</strong> والآن مع <strong>ذاكرة المحادثة</strong> و<strong>الملف الصحي الشخصي</strong>.</p>
               <p>✨ <strong>جديد:</strong> أضف ملفك الصحي 👤 لردود مخصصة، استخدم مدقق الأعراض 🩺، وفعّل تذكيرات الأدوية 💊.</p>
               <blockquote>⚠️ <strong>تنبيه:</strong> لأغراض تعليمية فقط. استشر طبيبك للتشخيص الطبي المتخصص.</blockquote>
@@ -748,7 +748,7 @@
           <i class="fas fa-paper-plane"></i>
         </button>
       </form>
-      <p class="input-hint">Tabeeb AI provides educational health information only — not a substitute for professional medical advice.</p>
+      <p class="input-hint">Tapep AI provides educational health information only — not a substitute for professional medical advice.</p>
     </div>
 
   </div><!-- /chat-area -->

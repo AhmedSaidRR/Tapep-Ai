@@ -16,7 +16,7 @@ PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - [Tabeeb AI] %(message)s",
+    format="%(asctime)s - %(name)s - %(levelname)s - [Tapep AI] %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -44,14 +44,14 @@ def _get_vectorstore() -> PineconeVectorStore:
     Lazy-initialise and cache the Pinecone vectorstore.
     Subsequent calls return the same instance, avoiding repeated network round-trips.
     """
-    logger.info("🔗 [Tabeeb AI] Initialising Pinecone vectorstore (cached)…")
+    logger.info("🔗 [Tapep AI] Initialising Pinecone vectorstore (cached)…")
     embeddings = PineconeEmbeddings(model=EMBEDDING_MODEL)
     vectorstore = PineconeVectorStore(
         index_name=INDEX_NAME,
         embedding=embeddings,
         pinecone_api_key=PINECONE_API_KEY,
     )
-    logger.info("✅ [Tabeeb AI] Pinecone vectorstore ready.")
+    logger.info("✅ [Tapep AI] Pinecone vectorstore ready.")
     return vectorstore
 
 
@@ -60,13 +60,13 @@ def _get_vectorstore() -> PineconeVectorStore:
 @tool
 def rag_tool(query: str) -> str:
     """
-    📚 Retrieve relevant health information from the Tabeeb AI knowledge base.
+    📚 Retrieve relevant health information from the Tapep AI knowledge base.
     This knowledge base contains comprehensive medical documents covering diseases,
     treatments, symptoms, medications, procedures, and wellness topics.
     Always call this tool FIRST before considering a web search.
     """
     try:
-        logger.info(f"📖 [Tabeeb AI] RAG search: {query}")
+        logger.info(f"📖 [Tapep AI] RAG search: {query}")
         vectorstore = _get_vectorstore()
 
         # Retrieve top-10 most relevant chunks for richer context
@@ -79,7 +79,7 @@ def rag_tool(query: str) -> str:
             retriever,
             "search_health_knowledge_base",
             (
-                "🏥 Searches the Tabeeb AI medical knowledge base for comprehensive "
+                "🏥 Searches the Tapep AI medical knowledge base for comprehensive "
                 "information about diseases, treatments, medications, symptoms, prevention, "
                 "diagnosis, lifestyle health, and wellness."
             ),
@@ -88,17 +88,17 @@ def rag_tool(query: str) -> str:
         result = _rag_instance.invoke(query)
 
         if not result or len(str(result).strip()) < 20:
-            logger.warning("⚠️ [Tabeeb AI] RAG returned no useful results.")
+            logger.warning("⚠️ [Tapep AI] RAG returned no useful results.")
             return (
                 "📚 No specific information found in the health knowledge base for this query. "
                 "Consider using the web search tool to find current information."
             )
 
-        logger.info("✅ [Tabeeb AI] RAG search completed successfully.")
-        return f"**📚 From Tabeeb AI Health Knowledge Base:**\n\n{result}"
+        logger.info("✅ [Tapep AI] RAG search completed successfully.")
+        return f"**📚 From Tapep AI Health Knowledge Base:**\n\n{result}"
 
     except Exception as e:
-        logger.error(f"❌ [Tabeeb AI] RAG error: {str(e)}")
+        logger.error(f"❌ [Tapep AI] RAG error: {str(e)}")
         return (
             "⚠️ An error occurred while searching the health knowledge base. "
             "Please try again or rephrase your question."
@@ -114,27 +114,27 @@ def medical_web_search(query: str) -> str:
     niche wellness topics, mental health strategies, nutritional guidance.
     """
     try:
-        logger.info(f"🔍 [Tabeeb AI] Web search: {query}")
+        logger.info(f"🔍 [Tapep AI] Web search: {query}")
 
         # Restrict search to trusted medical domains
         medical_query = f"{query} {TRUSTED_MEDICAL_SITES}"
         results = _duckduckgo_search.invoke(medical_query)
 
         if not results or len(str(results).strip()) < 20:
-            logger.warning("⚠️ [Tabeeb AI] Web search returned no relevant results.")
+            logger.warning("⚠️ [Tapep AI] Web search returned no relevant results.")
             return (
                 "🔍 No relevant medical information found online for this query. "
                 "Please consult a healthcare professional for the most accurate guidance."
             )
 
-        logger.info("✅ [Tabeeb AI] Web search completed successfully.")
+        logger.info("✅ [Tapep AI] Web search completed successfully.")
         return (
             "🔍 **Searching the web for latest medical information…**\n\n"
             f"**🌐 Latest Health Information from Trusted Medical Sources:**\n\n{results}"
         )
 
     except Exception as e:
-        logger.error(f"❌ [Tabeeb AI] Web search error: {str(e)}")
+        logger.error(f"❌ [Tapep AI] Web search error: {str(e)}")
         return (
             "⚠️ An error occurred while searching for health information online. "
             "Please try again or consult a healthcare professional."

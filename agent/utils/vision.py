@@ -93,7 +93,7 @@ def analyze_medical_image(image_bytes: bytes, mime_type: str, user_question: str
         patient_q = f"\n\n**{'سؤال المريض' if lang == 'ar' else 'Patient question'}:** {user_question}" if user_question else ""
 
         prompt = (
-            "You are **Tabeeb AI Vision** 🏥, an expert AI medical image analyst.\n\n"
+            "You are **Tapep AI Vision** 🏥, an expert AI medical image analyst.\n\n"
             f"{language_instruction}"
             "Carefully analyze the uploaded medical image and produce a thorough, structured report "
             "covering every applicable section:\n\n"
@@ -124,8 +124,6 @@ def analyze_lab_report_structured(image_bytes: bytes, mime_type: str, notes: str
     The response is guaranteed to be a JSON object matching LabReportResponse schema.
     """
     try:
-        model = genai.GenerativeModel("gemini-2.5-flash")
-        
         prompt = (
             "You are an expert AI clinical pathologist. Carefully analyze the uploaded lab report or test result image.\n"
             "Extract all laboratory parameters, their values, units, reference ranges, and flag their status (Low, High, or Normal).\n"
@@ -153,11 +151,30 @@ def analyze_lab_report_structured(image_bytes: bytes, mime_type: str, notes: str
             "data": base64.b64encode(image_bytes).decode("utf-8"),
         }
 
-        response = model.generate_content(
-            [prompt, image_part],
-            generation_config={"response_mime_type": "application/json"}
-        )
-        return response.text
+        response_text = None
+        last_err = None
+
+        for model_name in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]:
+            try:
+                logger.info(f"🔄 [Tapep AI] Trying lab report analysis with model: {model_name}")
+                model = genai.GenerativeModel(model_name)
+                response = model.generate_content(
+                    [prompt, image_part],
+                    generation_config={"response_mime_type": "application/json"}
+                )
+                if response and response.text:
+                    response_text = response.text
+                    logger.info(f"✅ [Tapep AI] Lab report analysis successful with {model_name}")
+                    break
+            except Exception as ex:
+                logger.warning(f"⚠️ [Tapep AI] Model {model_name} failed: {ex}")
+                last_err = ex
+                continue
+
+        if not response_text:
+            raise last_err if last_err else RuntimeError("All vision models failed for lab report analysis.")
+        
+        return response_text
     except Exception as e:
         logger.error(f"Structured vision error: {str(e)}")
         raise RuntimeError(f"Lab report analysis failed: {str(e)}")
