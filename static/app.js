@@ -1209,11 +1209,6 @@ exportPdfBtn.addEventListener('click', () => {
     ⚠️ هذا التقرير لأغراض تعليمية فقط ولا يُغني عن استشارة طبيب مختص.
     Tapep AI — Educational purposes only.
   </div>
-  <script>
-    window.onload = function() {
-      setTimeout(function() { window.print(); }, 600);
-    };
-  <\/script>
 </body>
 </html>`;
 
@@ -1234,12 +1229,21 @@ exportPdfBtn.addEventListener('click', () => {
 
   showToast('📄', 'جاري تجهيز تقرير الطباعة كـ PDF...');
 
-  // Clean up the iframe after the print dialog opens
+  // Trigger print directly from parent window once iframe content is written
   setTimeout(() => {
-    if (iframe.parentNode) {
-      document.body.removeChild(iframe);
+    try {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    } catch (e) {
+      console.error('Print failed:', e);
     }
-  }, 10000);
+    // Remove the iframe after printing starts
+    setTimeout(() => {
+      if (iframe.parentNode) {
+        document.body.removeChild(iframe);
+      }
+    }, 2000);
+  }, 1000);
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
