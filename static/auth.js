@@ -3,7 +3,7 @@
    Login · Register · Logout · Cloud Save (chats, health profiles, reminders)
    ══════════════════════════════════════════════════════════════════════════ */
 
-const SUPABASE_URL  = 'https://uwnzvosddakjctajhklr.supabase.co';
+const SUPABASE_URL  = 'https://uwnzvosddakjctajhklr.supabase.co'; // ✅ Correct: .co not .com
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV3bnp2b3NkZGFramN0YWpoa2xyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MjUyNjQsImV4cCI6MjA5ODQwMTI2NH0.bJ82UlT4xWkWM7SZ3FIZJnWx3JgOj-qBt0QyH1pw1gE';
 
 const _supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);

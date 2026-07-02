@@ -338,7 +338,13 @@ function escapeHtml(s) {
 marked.setOptions({ breaks: true, gfm: true });
 function renderMarkdown(c) {
   if (!c) return '';
-  c = c.replace(/^```\s*\n?/, '').replace(/\n?```\s*$/, '');
+  // Only strip wrapping backticks when the ENTIRE content is one code block
+  // (i.e. starts with ``` and ends with ```) — not partial blocks inside the text.
+  const stripped = c.trim();
+  if (/^```[\w]*\n[\s\S]*\n```$/.test(stripped)) {
+    const lines = stripped.split('\n');
+    c = lines.slice(1, -1).join('\n');
+  }
   try { return marked.parse(c); }
   catch { return '<p>' + escapeHtml(c) + '</p>'; }
 }
@@ -482,10 +488,17 @@ function removeIndicator(id) { const el = document.getElementById(id); if (el) e
 /* ══════════════════════════════════════════════════════════════════════════
    STREAMING CHAT (with memory + profile)
    ══════════════════════════════════════════════════════════════════════════ */
+let _activeStreamController = null; // AbortController for the current stream
+
 async function handleStreamingResponse(userText) {
   setInputEnabled(false);
   showTypingIndicator();
   stopTts();
+
+  // Cancel any previous in-flight stream
+  if (_activeStreamController) _activeStreamController.abort();
+  _activeStreamController = new AbortController();
+  const signal = _activeStreamController.signal;
 
   let streamDiv = null, cid = null, accumulated = '', firstContent = true;
 
@@ -501,6 +514,7 @@ async function handleStreamingResponse(userText) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal,
     });
     if (!res.ok) throw new Error('Network error ' + res.status);
 
@@ -548,9 +562,12 @@ async function handleStreamingResponse(userText) {
     }
   } catch (err) {
     removeIndicator('typingIndicator'); removeIndicator('toolIndicator');
-    addBotMessage('⚠️ Connection error. Please check your network and try again.');
-    console.error('Stream error:', err);
+    if (err.name !== 'AbortError') {
+      addBotMessage('⚠️ Connection error. Please check your network and try again.');
+      console.error('Stream error:', err);
+    }
   } finally {
+    _activeStreamController = null;
     setInputEnabled(true);
   }
 }
@@ -1620,15 +1637,15 @@ function renderLabResults(data) {
 if (sendLabToChatBtn) {
   sendLabToChatBtn.addEventListener('click', () => {
     if (!lastLabAnalysisData) return;
-    
+
     closeModal('labScannerModal');
-    
-    let reportStr = `أود مشاركة نتائج تحليلي الطبي معك:\\n`;
+
+    let reportStr = 'أود مشاركة نتائج تحليلي الطبي معك:\n';
     lastLabAnalysisData.indicators.forEach(ind => {
-      reportStr += `- **${ind.parameter}**: ${ind.value} ${ind.unit} (المعدل الطبيعي: ${ind.reference_range}) -> [حالة: ${ind.status}]\\n`;
+      reportStr += `- **${ind.parameter}**: ${ind.value} ${ind.unit} (المعدل الطبيعي: ${ind.reference_range}) -> [حالة: ${ind.status}]\n`;
     });
-    reportStr += `\\n**الخلاصة المبدئية**: ${lastLabAnalysisData.summary}\\n\\nما رأيك في هذه النتائج؟ وما هي توجيهاتك الطبية ونمطي الغذائي والحياتي المناسبين؟`;
-    
+    reportStr += `\n**الخلاصة المبدئية**: ${lastLabAnalysisData.summary}\n\nما رأيك في هذه النتائج؟ وما هي توجيهاتك الطبية ونمطي الغذائي والحياتي المناسبين؟`;
+
     userMessageEl.value = reportStr;
     chatForm.dispatchEvent(new Event('submit'));
   });
@@ -1824,19 +1841,19 @@ function renderInteractionResults(data) {
 if (sendInteractionsToChatBtn) {
   sendInteractionsToChatBtn.addEventListener('click', () => {
     if (!lastInteractionReport) return;
-    
+
     closeModal('interactionModal');
-    
-    let reportStr = `أريد استشارتك حول تعارضات الأدوية التالية:\\n`;
+
+    let reportStr = 'أريد استشارتك حول تعارضات الأدوية التالية:\n';
     if (lastInteractionReport.interactions && lastInteractionReport.interactions.length) {
       lastInteractionReport.interactions.forEach(item => {
-        reportStr += `- **${item.drugs.join(' مع ')}**: خطورة [${item.severity}] -> ${item.description}. توصية: ${item.recommendation}\\n`;
+        reportStr += `- **${item.drugs.join(' مع ')}**: خطورة [${item.severity}] -> ${item.description}. توصية: ${item.recommendation}\n`;
       });
     } else {
-      reportStr += `لقد قمت بفحص الأدوية وظهرت آمنة تماماً.\\n`;
+      reportStr += 'لقد قمت بفحص الأدوية وظهرت آمنة تماماً.\n';
     }
-    reportStr += `\\n**خلاصة التقرير**: ${lastInteractionReport.summary}\\n\\nما هي الاحتياطات الطبية الإضافية التي يجب علي اتخاذها؟`;
-    
+    reportStr += `\n**خلاصة التقرير**: ${lastInteractionReport.summary}\n\nما هي الاحتياطات الطبية الإضافية التي يجب علي اتخاذها؟`;
+
     userMessageEl.value = reportStr;
     chatForm.dispatchEvent(new Event('submit'));
   });
