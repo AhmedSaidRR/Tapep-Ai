@@ -14,7 +14,7 @@ class ArabicPDF(FPDF):
         if self.page_no() > 1:
             self.set_font("Arial", size=9)
             self.set_text_color(128, 128, 128)
-            title_text = get_display(arabic_reshaper.reshape("🩺 مشروع DOCTOR — المساعد الطبي الذكي المتكامل"))
+            title_text = get_display(arabic_reshaper.reshape("مشروع Tapep AI — المساعد الطبي الذكي المتكامل"))
             self.cell(0, 10, title_text, align="R", new_x="LMARGIN", new_y="NEXT")
             self.ln(5)
 
@@ -79,7 +79,7 @@ def create_documentation_pdf():
     pdf.set_y(20)
     pdf.set_font("Arial", size=24)
     pdf.set_text_color(30, 58, 138)  # Deep Navy Blue
-    title = get_display(arabic_reshaper.reshape("🩺 مشروع DOCTOR: المساعد الطبي الذكي"))
+    title = get_display(arabic_reshaper.reshape("مشروع Tapep AI: المساعد الطبي الذكي"))
     pdf.cell(0, 15, title, align="R", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("Arial", size=16)
@@ -210,9 +210,10 @@ def create_documentation_pdf():
             bidi_line = get_display(reshaped)
             pdf.cell(0, 5.5, bidi_line, align="L", new_x="LMARGIN", new_y="NEXT")
             
-    # Save the output PDF in the workspace folder
-    output_filename = "DOCTOR_Project_Documentation.pdf"
-    output_path = os.path.join(r"c:\Users\ahmed\OneDrive\Desktop\MediBlaze-main", output_filename)
+    # Save the output PDF in the workspace folder dynamically
+    output_filename = "Tapep_AI_Project_Documentation.pdf"
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    output_path = os.path.join(base_dir, output_filename)
     pdf.output(output_path)
     print(f"SUCCESS: PDF generated at {output_path}")
 
