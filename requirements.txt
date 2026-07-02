@@ -28,4 +28,5 @@ markdown>=3.5.0
 pypdf>=4.0.0
 
 # ── Web Search ────────────────────────────────────────────────────────────────
-duckduckgo-search>=6.1.0
+# ddgs is the new package name required by langchain_community DuckDuckGoSearchAPIWrapper
+ddgs>=7.2.0
