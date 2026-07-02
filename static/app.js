@@ -427,7 +427,7 @@ function createStreamingMessage() {
   div.className = 'message bot-message';
   div.innerHTML = `
     <div class="message-avatar">
-      <img src="/static/doctor-avatar.png" alt="MediBlaze AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
+      <img src="/static/doctor-avatar.png" alt="Tapep AI" onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
     </div>
     <div class="message-bubble">
       <div class="message-content streaming-cursor" id="${cid}" dir="auto"></div>
@@ -1143,7 +1143,7 @@ exportPdfBtn.addEventListener('click', () => {
 
     const text = content.innerText || content.textContent || '';
     const ts   = time ? time.textContent : '';
-    const role = isUser ? '👤 أنت' : '🏥 MediBlaze AI';
+    const role = isUser ? '👤 أنت' : '🏥 Tapep AI';
     const cls  = isUser ? 'user-block' : 'bot-block';
 
     rows += `
@@ -1158,7 +1158,7 @@ exportPdfBtn.addEventListener('click', () => {
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <title>MediBlaze — تقرير الاستشارة</title>
+  <title>Tapep AI — تقرير الاستشارة</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing:border-box; margin:0; padding:0; }
@@ -1201,13 +1201,13 @@ exportPdfBtn.addEventListener('click', () => {
 </head>
 <body>
   <div class="report-header">
-    <h1>🏥 MediBlaze AI — تقرير الاستشارة الطبية</h1>
+    <h1>🏥 Tapep AI — تقرير الاستشارة الطبية</h1>
     <p>📅 ${dateStr} — للأغراض التعليمية فقط</p>
   </div>
   ${rows}
   <div class="disclaimer">
     ⚠️ هذا التقرير لأغراض تعليمية فقط ولا يُغني عن استشارة طبيب مختص.
-    MediBlaze AI — Educational purposes only.
+    Tapep AI — Educational purposes only.
   </div>
   <script>
     window.onload = function() {
@@ -1393,8 +1393,8 @@ userMessageEl.focus();
 // ── PWA: Register Service Worker ──────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js', { scope: '/' })
-    .then(reg => console.log('[MediBlaze PWA] Service Worker registered:', reg.scope))
-    .catch(err => console.warn('[MediBlaze PWA] SW registration failed:', err));
+    .then(reg => console.log('[Tapep AI PWA] Service Worker registered:', reg.scope))
+    .catch(err => console.warn('[Tapep AI PWA] SW registration failed:', err));
 }
 
 // ── PWA: Install Button & Banner Logic ────────────────────────────────────────

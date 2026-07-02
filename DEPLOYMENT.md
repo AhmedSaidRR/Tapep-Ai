@@ -1,6 +1,6 @@
-# 🚀 MediBlaze Deployment Guide
+# 🚀 Tapep AI Deployment Guide
 
-This guide covers different deployment options for MediBlaze AI Medical Assistant.
+This guide covers different deployment options for Tapep AI Medical Assistant.
 
 ## 📋 Prerequisites
 

@@ -1,5 +1,5 @@
 """
-Pydantic models for MediBlaze / Tapep AI API.
+Pydantic models for Tapep AI API.
 """
 
 from pydantic import BaseModel, field_validator
