@@ -659,12 +659,77 @@
             <img src="/static/doctor-avatar.png" alt="Tapep AI"
                  onerror="this.src='https://placehold.co/32x32/1a73e8/fff?text=🏥'" />
           </div>
-          <div class="message-bubble">
+          <div class="message-bubble" style="max-width:600px">
             <div class="message-content">
-              <h2>🏥 Welcome to Tapep AI v3.0!</h2>
-              <p>مساعدك الطبي الذكي — مدعوم بـ <strong>RAG</strong> و<strong>بحث الويب</strong> و<strong>تحليل الصور</strong> والآن مع <strong>ذاكرة المحادثة</strong> و<strong>الملف الصحي الشخصي</strong>.</p>
-              <p>✨ <strong>جديد:</strong> أضف ملفك الصحي 👤 لردود مخصصة، استخدم مدقق الأعراض 🩺، وفعّل تذكيرات الأدوية 💊.</p>
-              <blockquote>⚠️ <strong>تنبيه:</strong> لأغراض تعليمية فقط. استشر طبيبك للتشخيص الطبي المتخصص.</blockquote>
+
+              <!-- Hero greeting -->
+              <div style="text-align:center;padding:0.5rem 0 1rem">
+                <div style="font-size:2.6rem;margin-bottom:0.4rem;line-height:1">🏥</div>
+                <h2 style="font-size:1.35rem;font-weight:800;margin:0 0 0.3rem;background:linear-gradient(135deg,#1a73e8,#00bcd4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+                  مرحباً بك في Tapep AI
+                </h2>
+                <p style="font-size:0.82rem;color:var(--mb-muted);margin:0">
+                  مساعدك الطبي الذكي — متاح لك على مدار الساعة
+                </p>
+              </div>
+
+              <!-- Divider -->
+              <div style="height:1px;background:var(--mb-glass-border);margin:0.6rem 0 1rem"></div>
+
+              <!-- Feature cards -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem">
+                <div style="background:var(--mb-surface-2);border:1px solid var(--mb-glass-border);border-radius:10px;padding:0.6rem 0.75rem;display:flex;align-items:flex-start;gap:0.5rem">
+                  <span style="font-size:1.1rem">📚</span>
+                  <div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--mb-text)">قاعدة معرفية طبية</div>
+                    <div style="font-size:0.71rem;color:var(--mb-muted)">RAG من مصادر موثوقة</div>
+                  </div>
+                </div>
+                <div style="background:var(--mb-surface-2);border:1px solid var(--mb-glass-border);border-radius:10px;padding:0.6rem 0.75rem;display:flex;align-items:flex-start;gap:0.5rem">
+                  <span style="font-size:1.1rem">🔍</span>
+                  <div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--mb-text)">بحث طبي فوري</div>
+                    <div style="font-size:0.71rem;color:var(--mb-muted)">أحدث المعلومات الصحية</div>
+                  </div>
+                </div>
+                <div style="background:var(--mb-surface-2);border:1px solid var(--mb-glass-border);border-radius:10px;padding:0.6rem 0.75rem;display:flex;align-items:flex-start;gap:0.5rem">
+                  <span style="font-size:1.1rem">🖼️</span>
+                  <div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--mb-text)">تحليل الصور والتحاليل</div>
+                    <div style="font-size:0.71rem;color:var(--mb-muted)">Gemini Vision AI</div>
+                  </div>
+                </div>
+                <div style="background:var(--mb-surface-2);border:1px solid var(--mb-glass-border);border-radius:10px;padding:0.6rem 0.75rem;display:flex;align-items:flex-start;gap:0.5rem">
+                  <span style="font-size:1.1rem">👤</span>
+                  <div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--mb-text)">ملف صحي شخصي</div>
+                    <div style="font-size:0.71rem;color:var(--mb-muted)">ردود مخصصة لحالتك</div>
+                  </div>
+                </div>
+                <div style="background:var(--mb-surface-2);border:1px solid var(--mb-glass-border);border-radius:10px;padding:0.6rem 0.75rem;display:flex;align-items:flex-start;gap:0.5rem">
+                  <span style="font-size:1.1rem">💊</span>
+                  <div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--mb-text)">مدقق التعارض الدوائي</div>
+                    <div style="font-size:0.71rem;color:var(--mb-muted)">حماية من التفاعلات الخطيرة</div>
+                  </div>
+                </div>
+                <div style="background:var(--mb-surface-2);border:1px solid var(--mb-glass-border);border-radius:10px;padding:0.6rem 0.75rem;display:flex;align-items:flex-start;gap:0.5rem">
+                  <span style="font-size:1.1rem">🩺</span>
+                  <div>
+                    <div style="font-size:0.78rem;font-weight:700;color:var(--mb-text)">مدقق الأعراض</div>
+                    <div style="font-size:0.71rem;color:var(--mb-muted)">تشخيص أولي تفاعلي</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Disclaimer -->
+              <div style="background:rgba(255,152,0,0.08);border:1px solid rgba(255,152,0,0.25);border-radius:8px;padding:0.55rem 0.75rem;display:flex;gap:0.5rem;align-items:flex-start">
+                <span style="font-size:0.9rem;flex-shrink:0">⚠️</span>
+                <p style="margin:0;font-size:0.73rem;color:var(--mb-text-2);line-height:1.5">
+                  <strong>تنبيه:</strong> Tapep AI لأغراض تعليمية وتوعوية فقط. لا يُغني عن استشارة طبيب متخصص. في حالات الطوارئ اتصل بالإسعاف فوراً.
+                </p>
+              </div>
+
             </div>
             <div class="message-footer">
               <span class="message-time" id="welcomeTime"></span>
