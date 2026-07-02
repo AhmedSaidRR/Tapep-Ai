@@ -1217,12 +1217,29 @@ exportPdfBtn.addEventListener('click', () => {
 </body>
 </html>`;
 
-  const win = window.open('', '_blank', 'width=900,height=700');
-  if (!win) { showToast('⚠️', 'السماح بالنوافذ المنبثقة لفتح التقرير'); return; }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
-  showToast('📄', 'جاري فتح التقرير — اختر "حفظ كـ PDF" من نافذة الطباعة');
+  // Create a temporary hidden iframe for printing (bypasses popup blockers completely)
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = 'none';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+
+  showToast('📄', 'جاري تجهيز تقرير الطباعة كـ PDF...');
+
+  // Clean up the iframe after the print dialog opens
+  setTimeout(() => {
+    if (iframe.parentNode) {
+      document.body.removeChild(iframe);
+    }
+  }, 10000);
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
