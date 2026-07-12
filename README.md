@@ -67,7 +67,7 @@ Tabeeb-AI/
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/ahmedsaalmann/Tabeeb-AI.git
+git clone https://github.com/AhmedSaidRR/Tabeeb-AI.git
 cd Tabeeb-AI
 
 # 2. Create & activate a virtual environment
